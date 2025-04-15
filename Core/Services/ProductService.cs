@@ -2,6 +2,7 @@
 using Domain.Contracts;
 using Domain.Entities;
 using Services.Abstraction;
+using Services.Specifications;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -14,17 +15,25 @@ namespace Services
     public class ProductService(IUnitOfWork unitOfWork , IMapper mapper ) : IProductService
     {
        
-        public async Task<IEnumerable<ProductResultDto>> GetAllProductsAsync()
+        public async Task<PaginationResponse<ProductResultDto>> GetAllProductsAsync(ProductSpecificationsParameters specParams)
         {
+            var spec = new ProductsWithBrandsAndTypesSpecifications(specParams);
             //Get All Products From Repository
-            var products = await unitOfWork.GetRepository<Product,int>().GetAllAsync();
+            var products = await unitOfWork.GetRepository<Product,int>().GetAllAsync(spec);
+
+            var specCount = new ProductWithCountSpecification(specParams);
+
+            var count = await unitOfWork.GetRepository<Product, int>().CountAsync(specCount );
+
             //Mapping IEnumerable<Product> to IEnumerable<ProductResultDto> : AutoMapper
             var result = mapper.Map<IEnumerable<ProductResultDto>>(products);
-            return result;
+            
+            return new PaginationResponse<ProductResultDto>(specParams.PageIndex,specParams.PageSize, count , result);
         }
         public async Task<ProductResultDto?> GetProductByIdAsync(int id)
         {
-            var product = await unitOfWork.GetRepository<Product,int>().GetByIdAsync(id);
+            var spec = new ProductsWithBrandsAndTypesSpecifications(id);
+            var product = await unitOfWork.GetRepository<Product,int>().GetByIdAsync(spec);
             if(product is null)
             {
                 return null;
