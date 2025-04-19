@@ -9,8 +9,12 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class ServiceManger(IUnitOfWork unitOfWork , IMapper mapper) : IServiceManager
+    public class ServiceManger(IUnitOfWork unitOfWork ,
+        IMapper mapper,
+        IBasketRepository basketRepository
+        ) : IServiceManager
     {
         public IProductService ProductService { get; } = new ProductService(unitOfWork,mapper);
+        public IBasketService BasketService { get; } = new BasketService(basketRepository, mapper);
     }
 }
