@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Presistance.Data;
+using Presistance.Identity;
 using Presistance.Repositories;
 using StackExchange.Redis;
 using System;
@@ -23,13 +24,24 @@ namespace Presistance
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnectionString"));
 
             });
+
+            services.AddDbContext<StoreIdentityDbContext>(options => {
+
+                //options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnectionString"]);
+                options.UseSqlServer(configuration.GetConnectionString("IdentityConnectionString"));
+
+            });
             services.AddScoped<IDbInitializer, DbInitializer>(); //Allow DI For initializer
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBasketRepository, BasketRepository>();
+            services.AddScoped<ICacheRepository, CacheRepository>();
+
+
             services.AddSingleton<IConnectionMultiplexer>((serviceProvider) => 
             {
                 return ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!);
             });
+            
 
             return services;
         }
