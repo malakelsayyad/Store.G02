@@ -6,7 +6,7 @@
         {
             
         }
-        public DeliveryMethod(string shortName, string description, string deliveryTime, string cost)
+        public DeliveryMethod(string shortName, string description, string deliveryTime, decimal cost)
         {
             ShortName = shortName;
             Description = description;
@@ -17,6 +17,6 @@
         public string ShortName { get; set; }
         public string Description { get; set; }
         public string DeliveryTime { get; set; }
-        public string Cost { get; set; }
+        public decimal Cost { get; set; }
     }
 }
